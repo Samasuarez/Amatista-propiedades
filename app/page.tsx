@@ -14,7 +14,8 @@ async function getProperties(): Promise<PropertyData[]> {
     await connectDB()
     const props = await Property.find({ available: true }).sort({ createdAt: 1 }).lean()
     return JSON.parse(JSON.stringify(props))
-  } catch {
+  } catch (err) {
+    console.error('Error cargando propiedades:', err)
     return [] as PropertyData[]
   }
 }
