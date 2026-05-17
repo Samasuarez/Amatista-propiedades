@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: 'Contraseña incorrecta' }, { status: 401 })
   }
 
-  const token = btoa(process.env.ADMIN_PASSWORD)
+  const token = btoa(process.env.ADMIN_PASSWORD ?? '')
   const res = Response.json({ ok: true })
 
   res.headers.set(
