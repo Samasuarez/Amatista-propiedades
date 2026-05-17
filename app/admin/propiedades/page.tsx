@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { connectDB } from '@/lib/mongodb'
 import { Property } from '@/lib/models/Property'
 import PropiedadesClient from './PropiedadesClient'
