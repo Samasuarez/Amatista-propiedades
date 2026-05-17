@@ -2,10 +2,24 @@ import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import About from './components/About'
 import Gallery from './components/Gallery'
-import Properties from './components/Properties'
+import Properties, { type PropertyData } from './components/Properties'
 import Contact from './components/Contact'
+import { connectDB } from '@/lib/mongodb'
+import { Property } from '@/lib/models/Property'
 
-export default function Home() {
+async function getProperties(): Promise<PropertyData[]> {
+  try {
+    await connectDB()
+    const props = await Property.find({ available: true }).sort({ createdAt: 1 }).lean()
+    return JSON.parse(JSON.stringify(props))
+  } catch {
+    return [] as PropertyData[]
+  }
+}
+
+export default async function Home() {
+  const properties = await getProperties()
+
   return (
     <>
       <Navbar />
@@ -13,7 +27,7 @@ export default function Home() {
         <Hero />
         <About />
         <Gallery />
-        <Properties />
+        <Properties properties={properties} />
         <Contact />
       </main>
     </>

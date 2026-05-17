@@ -7,10 +7,36 @@ export default function Contact() {
   const ref = useRef<HTMLElement>(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
   const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setSent(true)
+    setLoading(true)
+    setError('')
+
+    const form = e.currentTarget
+    const data = {
+      name:     (form.elements.namedItem('name') as HTMLInputElement).value,
+      email:    (form.elements.namedItem('email') as HTMLInputElement).value,
+      phone:    (form.elements.namedItem('phone') as HTMLInputElement).value,
+      interest: (form.elements.namedItem('interest') as HTMLSelectElement).value,
+      message:  (form.elements.namedItem('message') as HTMLTextAreaElement).value,
+    }
+
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error('Error al enviar')
+      setSent(true)
+    } catch {
+      setError('Hubo un problema al enviar. Intentá de nuevo.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -96,11 +122,15 @@ export default function Contact() {
                     className="w-full bg-white/8 border border-white/15 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-amatista-light transition-colors resize-none"
                   />
                 </div>
+                {error && (
+                  <p className="text-red-400 text-sm text-center">{error}</p>
+                )}
                 <button
                   type="submit"
-                  className="w-full bg-amatista hover:bg-amatista-dark text-white font-semibold py-4 rounded-xl transition-colors tracking-wide"
+                  disabled={loading}
+                  className="w-full bg-amatista hover:bg-amatista-dark disabled:opacity-60 text-white font-semibold py-4 rounded-xl transition-colors tracking-wide"
                 >
-                  Enviar consulta
+                  {loading ? 'Enviando...' : 'Enviar consulta'}
                 </button>
               </form>
             )}
